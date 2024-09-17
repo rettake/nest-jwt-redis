@@ -16,9 +16,24 @@ export class ArticleService {
     return this.articleRepository.save(article);
   }
 
-  findAll() {
-    console.log(this.articleRepository.find());
-    return this.articleRepository.find();
+  findAll(author: string, orderBy: string) {
+    const query = this.articleRepository.createQueryBuilder('article');
+
+    if (author) {
+      query.where('article.author = :author', { author });
+    }
+
+    if (orderBy) {
+      if (orderBy === 'asc') {
+        query.orderBy('article.createdAt', 'ASC');
+      } else if (orderBy === 'desc') {
+        query.orderBy('article.createdAt', 'DESC');
+      } else {
+        throw new Error(`Invalid orderBy value: ${orderBy}`);
+      }
+    }
+
+    return query.getMany();
   }
 
   findOne(id: number) {
