@@ -16,11 +16,7 @@ import { Article } from './article/article.entity';
     CacheModule.register(),
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: 'localhost',
-      port: 5432,
-      username: 'postgres',
-      password: 'postgres',
-      database: 'postgres',
+      url: process.env.DATABASE_URL,
       entities: [User, Article],
       synchronize: true,
     }),
