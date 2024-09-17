@@ -16,6 +16,8 @@ import { AuthGuard } from './auth.guard';
 import { User } from 'src/user/user.entity';
 import { SessionInfo } from './session-info.decorator';
 
+// TODO: DTO's
+
 @Controller('auth')
 export class AuthController {
   constructor(
