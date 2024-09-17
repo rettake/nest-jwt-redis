@@ -17,6 +17,7 @@ export class ArticleService {
   }
 
   findAll() {
+    console.log(this.articleRepository.find());
     return this.articleRepository.find();
   }
 

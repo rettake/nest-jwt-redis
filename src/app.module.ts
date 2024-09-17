@@ -1,3 +1,4 @@
+import { CacheModule } from '@nestjs/cache-manager';
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -12,8 +13,7 @@ import { Article } from './article/article.entity';
 @Module({
   imports: [
     ConfigModule.forRoot(),
-    UserModule,
-    AuthModule,
+    CacheModule.register(),
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: 'localhost',
@@ -24,6 +24,8 @@ import { Article } from './article/article.entity';
       entities: [User, Article],
       synchronize: true,
     }),
+    UserModule,
+    AuthModule,
     ArticleModule,
   ],
   controllers: [AppController],
