@@ -15,8 +15,7 @@ import { Response } from 'express';
 import { AuthGuard } from './auth.guard';
 import { User } from 'src/user/user.entity';
 import { SessionInfo } from './session-info.decorator';
-
-// TODO: DTO's
+import { SignInBodyDto, SignUpBodyDto } from './dto';
 
 @Controller('auth')
 export class AuthController {
@@ -27,7 +26,10 @@ export class AuthController {
 
   @Post('sign-up')
   @ApiCreatedResponse()
-  async signUp(@Body() body: any, @Res({ passthrough: true }) res: Response) {
+  async signUp(
+    @Body() body: SignUpBodyDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     const { accessToken } = await this.authService.signUp(
       body.email,
       body.password,
@@ -39,7 +41,10 @@ export class AuthController {
   @Post('sign-in')
   @ApiOkResponse()
   @HttpCode(HttpStatus.OK)
-  async signIn(@Body() body: any, @Res({ passthrough: true }) res: Response) {
+  async signIn(
+    @Body() body: SignInBodyDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     const { accessToken } = await this.authService.signIn(
       body.email,
       body.password,
