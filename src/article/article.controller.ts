@@ -8,6 +8,9 @@ import {
   Delete,
   UseGuards,
   UseInterceptors,
+  Inject,
+  Query,
+  ExecutionContext,
 } from '@nestjs/common';
 import { ArticleService } from './article.service';
 import { CreateArticleDto } from './dto/create-article.dto';
@@ -20,8 +23,16 @@ import {
   CacheTTL,
   CACHE_MANAGER,
 } from '@nestjs/cache-manager';
-import { Inject } from '@nestjs/common';
 import { Cache } from 'cache-manager';
+
+class DynamicCacheInterceptor extends CacheInterceptor {
+  trackBy(context: ExecutionContext): string | undefined {
+    const request = context.switchToHttp().getRequest();
+    const { author, orderBy } = request.query;
+
+    return `articles-${author || ''}-${orderBy || 'desc'}`;
+  }
+}
 
 @Controller('article')
 export class ArticleController {
@@ -30,22 +41,30 @@ export class ArticleController {
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
+  private async clearCache() {
+    const keys = await this.cacheManager.store.keys();
+    const articleKeys = keys.filter((key) => key.startsWith('articles-'));
+    for (const key of articleKeys) {
+      await this.cacheManager.del(key);
+    }
+  }
+
   @Post()
   @ApiCreatedResponse()
   @UseGuards(AuthGuard)
   async create(@Body() createArticleDto: CreateArticleDto) {
     const article = await this.articleService.create(createArticleDto);
-    this.cacheManager.del('article-key');
+    await this.clearCache();
     return article;
   }
 
-  @UseInterceptors(CacheInterceptor)
+  @UseInterceptors(DynamicCacheInterceptor)
   @CacheKey('article-key')
   @CacheTTL(1000 * 60 * 60 * 12)
   @Get()
   @ApiOkResponse()
-  findAll() {
-    return this.articleService.findAll();
+  findAll(@Query('author') author: string, @Query('orderBy') orderBy: string) {
+    return this.articleService.findAll(author, orderBy);
   }
 
   @Get(':id')
@@ -68,7 +87,7 @@ export class ArticleController {
       updateArticleDto,
     );
 
-    this.cacheManager.del('article-key');
+    await this.clearCache();
 
     return updatedArticle;
   }
@@ -79,7 +98,7 @@ export class ArticleController {
   async remove(@Param('id') id: string) {
     const deletedArticle = await this.articleService.remove(+id);
 
-    this.cacheManager.del('article-key');
+    await this.clearCache();
 
     return deletedArticle;
   }
