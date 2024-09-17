@@ -1,8 +1,20 @@
-import { Body, Post, Controller, Res } from '@nestjs/common';
+import {
+  Body,
+  Post,
+  Controller,
+  Res,
+  HttpStatus,
+  HttpCode,
+  UseGuards,
+  Get,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CookieService } from './cookie.service';
 import { ApiCreatedResponse, ApiOkResponse } from '@nestjs/swagger';
 import { Response } from 'express';
+import { AuthGuard } from './auth.guard';
+import { User } from 'src/user/user.entity';
+import { SessionInfo } from './session-info.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -24,6 +36,7 @@ export class AuthController {
 
   @Post('sign-in')
   @ApiOkResponse()
+  @HttpCode(HttpStatus.OK)
   async signIn(@Body() body: any, @Res({ passthrough: true }) res: Response) {
     const { accessToken } = await this.authService.signIn(
       body.email,
@@ -35,9 +48,18 @@ export class AuthController {
 
   @Post('sign-out')
   @ApiOkResponse()
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(AuthGuard)
   async signOut(@Res({ passthrough: true }) res: Response) {
     this.cookieService.removeToken(res);
   }
 
-  // TODO: Session Endpoint
+  @Get('session')
+  @ApiOkResponse({
+    type: User,
+  })
+  @UseGuards(AuthGuard)
+  getSessionInfo(@SessionInfo() session: User) {
+    return session;
+  }
 }
