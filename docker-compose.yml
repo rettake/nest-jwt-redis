@@ -1,15 +1,53 @@
-version: '3.9'
+version: '3.8'
 
 services:
   db:
-    image: postgres:14.1-alpine
+    image: postgres:15-alpine
+    container_name: nestjs_postgres
     restart: always
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: mydb
     ports:
       - '5432:5432'
     volumes:
-      - db:/var/lib/postgresql/data
+      - db-data:/var/lib/postgresql/data
+    networks:
+      - nestjs-network
+
+  redis:
+    image: redis:alpine
+    container_name: nestjs_redis
+    restart: always
+    ports:
+      - '6379:6379'
+    networks:
+      - nestjs-network
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nestjs_app
+    restart: always
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@db:5432/mydb
+      REDIS_URL: redis://redis:6379
+      NODE_ENV: production
+    ports:
+      - '3000:3000'
+    depends_on:
+      - db
+      - redis
+    networks:
+      - nestjs-network
+    volumes:
+      - .:/usr/src/app
+
 volumes:
-  db:
+  db-data:
+
+networks:
+  nestjs-network:
+    driver: bridge
