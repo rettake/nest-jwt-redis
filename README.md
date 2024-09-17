@@ -27,6 +27,6 @@ Before you start, make sure you have the following installed on your machine:
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/nest-jwt-redis.git
+git clone https://github.com/rettake/nest-jwt-redis.git
 cd nest-jwt-redis
 ```
