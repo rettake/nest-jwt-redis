@@ -1,23 +1,17 @@
-# Используем официальный образ Node.js
-FROM node:18-alpine
+FROM node:18
 
-# Устанавливаем рабочую директорию
 WORKDIR /usr/src/app
 
-# Копируем package.json и yarn.lock (или package-lock.json) для установки зависимостей
 COPY package*.json ./
 
-# Устанавливаем зависимости
-RUN yarn
+RUN npm install
 
-# Копируем все файлы проекта
 COPY . .
 
-# Собираем приложение (если нужно)
-RUN yarn build
+COPY .env ./
 
-# Открываем порт для приложения
+RUN npm run build
+
 EXPOSE 3000
 
-# Команда для запуска приложения
-CMD ["yarn", "start:prod"]
+CMD ["npm", "run", "start:prod"]

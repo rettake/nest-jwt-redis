@@ -42,8 +42,6 @@ services:
       - redis
     networks:
       - nestjs-network
-    volumes:
-      - .:/usr/src/app
 
 volumes:
   db-data:

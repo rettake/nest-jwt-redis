@@ -30,3 +30,18 @@ Before you start, make sure you have the following installed on your machine:
 git clone https://github.com/rettake/nest-jwt-redis.git
 cd nest-jwt-redis
 ```
+
+### 3. Configure ENV
+
+Create .env file
+```bash
+DATABASE_URL=postgres://postgres:postgres@db:5432/mydb
+REDIS_URL=redis://redis:6379
+NODE_ENV=production
+```
+
+### 3. Run the project
+docker compose up --build
+```bash
+docker compose up --build
+```
